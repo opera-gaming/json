@@ -96,16 +96,21 @@ if (JSON_SystemInclude)
     set(NLOHMANN_JSON_SYSTEM_INCLUDE "SYSTEM")
 endif()
 
-##
-## TARGET
-## create target and add include path
-##
-add_library(${NLOHMANN_JSON_TARGET_NAME} INTERFACE)
-add_library(${PROJECT_NAME}::${NLOHMANN_JSON_TARGET_NAME} ALIAS ${NLOHMANN_JSON_TARGET_NAME})
-if (${CMAKE_VERSION} VERSION_LESS "3.8.0")
-    target_compile_features(${NLOHMANN_JSON_TARGET_NAME} INTERFACE cxx_range_for)
+# Check if the target already exists
+if(NOT TARGET ${NLOHMANN_JSON_TARGET_NAME})
+    add_library(${NLOHMANN_JSON_TARGET_NAME} INTERFACE)
+    add_library(${PROJECT_NAME}::${NLOHMANN_JSON_TARGET_NAME} ALIAS ${NLOHMANN_JSON_TARGET_NAME})
+
+    if (${CMAKE_VERSION} VERSION_LESS "3.8.0")
+        target_compile_features(${NLOHMANN_JSON_TARGET_NAME} INTERFACE cxx_range_for)
+    else()
+        target_compile_features(${NLOHMANN_JSON_TARGET_NAME} INTERFACE cxx_std_11)
+    endif()
+
+    # Optionally, set include directories if needed
+    target_include_directories(${NLOHMANN_JSON_TARGET_NAME} INTERFACE /path/to/nlohmann_json/include)
 else()
-    target_compile_features(${NLOHMANN_JSON_TARGET_NAME} INTERFACE cxx_std_11)
+    message(STATUS "Target ${NLOHMANN_JSON_TARGET_NAME} already exists. Skipping add_library.")
 endif()
 
 target_compile_definitions(
